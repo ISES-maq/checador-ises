@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Checador ISES</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a18;
+    --cream: #f5f2ec;
+    --warm: #e8e2d6;
+    --accent: #c4531a;
+    --verde: #2a5c3f;
+    --gold: #b8975a;
+    --muted: #8a8478;
+    --card: #ffffff;
+    --border: rgba(26,26,24,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(196,83,26,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(42,92,63,0.06) 0%, transparent 50%);
+  }
+
+  header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(245,242,236,0.92);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo-block { display: flex; align-items: baseline; gap: 10px; }
+  .logo-name { font-family: 'DM Serif Display', serif; font-size: 20px; letter-spacing: -0.5px; }
+  .logo-tag { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+
+  .header-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+  }
+
+  main { max-width: 480px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  h1 { font-family: 'DM Serif Display', serif; font-size: 30px; line-height: 1.1; margin-bottom: 4px; letter-spacing: -0.5px; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .subtitle { font-size: 11px; color: var(--muted); margin-bottom: 28px; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+    margin-bottom: 16px;
+  }
+
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+
+  select {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8478' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(196,83,26,0.08); }
+
+  .tipo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tipo-btn {
+    padding: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: var(--cream);
+    cursor: pointer;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .tipo-btn.active-entrada { background: var(--verde); border-color: var(--verde); color: white; }
+  .tipo-btn.active-salida { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* Cámara */
+  .camera-wrap {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #111;
+    aspect-ratio: 3/4;
+    margin-bottom: 12px;
+  }
+
+  #video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scaleX(-1);
+  }
+
+  #canvas { display: none; }
+
+  #preview {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: none;
+    position: absolute;
+    top: 0; left: 0;
+    border-radius: 14px;
+  }
+
+  .face-guide {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -56%);
+    width: 130px; height: 160px;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 65px;
+    pointer-events: none;
+  }
+
+  .cam-ts {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 8px 12px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.8);
+    letter-spacing: 0.05em;
+  }
+
+  .cam-controls { display: flex; gap: 10px; }
+
+  .btn {
+    flex: 1; padding: 13px; border-radius: 12px; border: none;
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    letter-spacing: 0.06em; cursor: pointer; transition: all 0.18s; font-weight: 500;
+  }
+  .btn-ghost { background: var(--cream); border: 1px solid var(--border); color: var(--muted); }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--ink); }
+  .btn-snap { background: var(--ink); color: var(--cream); }
+  .btn-snap:active { opacity: 0.8; }
+
+  /* Geo */
+  .geo-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border-radius: 12px;
+    background: var(--cream); border: 1px solid var(--border);
+  }
+  .geo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
+  .geo-dot.ok { background: #2a9d4a; }
+  .geo-dot.err { background: var(--accent); }
+  .geo-dot.spin { background: var(--gold); animation: blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .geo-info { flex: 1; }
+  .geo-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .geo-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink); margin-top: 2px; }
+
+  .btn-geo {
+    padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: white;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    cursor: pointer; color: var(--muted); transition: all 0.2s;
+  }
+  .btn-geo:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* Botón principal */
+  .btn-registrar {
+    width: 100%; padding: 18px; border-radius: 16px; border: none;
+    font-family: 'DM Serif Display', serif; font-size: 20px;
+    cursor: pointer; transition: all 0.22s; letter-spacing: 0.01em;
+    margin-top: 8px;
+  }
+  .btn-registrar.entrada { background: var(--verde); color: white; }
+  .btn-registrar.salida { background: var(--accent); color: white; }
+  .btn-registrar:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+  .btn-registrar:active:not(:disabled) { transform: translateY(0); }
+  .btn-registrar:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Loading overlay */
+  #loadingOverlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(245,242,236,0.92);
+    backdrop-filter: blur(6px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #loadingOverlay.show { display: flex; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--verde);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.1em; color: var(--muted); }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--cream);
+    padding: 13px 22px; border-radius: 40px;
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    letter-spacing: 0.06em; opacity: 0; transition: all 0.3s;
+    z-index: 999; white-space: nowrap; max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.ok { background: var(--verde); }
+  #toast.err { background: var(--accent); }
+
+  /* Checklist visual */
+  .checklist { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .check-item {
+    display: flex; align-items: center; gap: 5px;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.06em; color: var(--muted);
+    padding: 5px 10px; border-radius: 20px;
+    background: var(--cream); border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .check-item.done { color: var(--verde); border-color: rgba(42,92,63,0.3); background: rgba(42,92,63,0.06); }
+  .check-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+  .check-item.done .check-dot { background: var(--verde); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <span class="logo-name">ISES</span>
+    <span class="logo-tag">Asistencia</span>
+  </div>
+  <div class="header-time" id="headerTime">--:--</div>
+</header>
+
+<main>
+  <h1>Registro <em>diario</em></h1>
+  <p class="subtitle" id="headerDate">Cargando fecha…</p>
+
+  <!-- Checklist de progreso -->
+  <div class="checklist">
+    <div class="check-item" id="chk-nombre"><div class="check-dot"></div>Empleado</div>
+    <div class="check-item" id="chk-foto"><div class="check-dot"></div>Foto</div>
+    <div class="check-item" id="chk-geo"><div class="check-dot"></div>Ubicación</div>
+  </div>
+
+  <!-- Datos -->
+  <div class="card">
+    <div class="card-label">Empleado</div>
+
+    <label>Nombre</label>
+    <select id="nombre" onchange="checkReady()">
+      <option value="">— Selecciona tu nombre —</option>
+      <option value="AD01">Acevedo Hernández Patricia</option>
+      <option value="AD02">Alba Martínez Enrique</option>
+      <option value="AD03">Castañeda Doroteo Antonia</option>
+      <option value="AD04">Castañeda Doroteo Citlalli</option>
+      <option value="AD05">Flores González Adrián</option>
+      <option value="AD06">García López Jesús</option>
+      <option value="AD07">Gómez Sánchez Sandra Areli</option>
+      <option value="AD08">González Hernández Janeth Estela</option>
+      <option value="AD09">Guerra González Ana Gabriela</option>
+      <option value="AD10">Homobono Bernal Esthela</option>
+      <option value="AD11">Montoya Cruz Rogelio</option>
+      <option value="AD12">Navarro Hernández Catalina</option>
+      <option value="AD13">Ojeda Suárez María Luisa</option>
+      <option value="AD14">Olivares Domínguez Mayra</option>
+      <option value="AD15">Reyes Fernández Marisol</option>
+      <option value="AD16">Rodríguez Vargas Yolanda</option>
+      <option value="AD17">Salinas Estrada Zobieda</option>
+      <option value="AD18">Sánchez Pérez María Eugenia</option>
+      <option value="AD19">Silva Páramo Anatalia</option>
+      <option value="AD20">Téllez González Ana Rosa</option>
+    </select>
+
+    <label style="margin-bottom:10px">Tipo de registro</label>
+    <div class="tipo-btns">
+      <button class="tipo-btn active-entrada" id="btnEntrada" onclick="setTipo('entrada')">↓ ENTRADA</button>
+      <button class="tipo-btn" id="btnSalida" onclick="setTipo('salida')">↑ SALIDA</button>
+    </div>
+  </div>
+
+  <!-- Cámara -->
+  <div class="card">
+    <div class="card-label">Foto en vivo</div>
+    <div class="camera-wrap">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas"></canvas>
+      <img id="preview" alt="Foto">
+      <div class="face-guide"></div>
+      <div class="cam-ts" id="camTs">Alineá tu rostro con el óvalo</div>
+    </div>
+    <div class="cam-controls">
+      <button class="btn btn-ghost" id="btnRetomar" onclick="retomar()" style="display:none">↩ Retomar</button>
+      <button class="btn btn-snap" id="btnFoto" onclick="tomarFoto()">📷 Tomar foto</button>
+    </div>
+  </div>
+
+  <!-- Geo -->
+  <div class="card">
+    <div class="card-label">Ubicación GPS</div>
+    <div class="geo-row">
+      <div class="geo-dot spin" id="geoDot"></div>
+      <div class="geo-info">
+        <div class="geo-label">Coordenadas</div>
+        <div class="geo-val" id="geoVal">Obteniendo ubicación…</div>
+      </div>
+      <button class="btn-geo" onclick="getGeo()">↺</button>
+    </div>
+  </div>
+
+  <button class="btn-registrar entrada" id="btnRegistrar" onclick="registrar()" disabled>
+    Registrar Entrada
+  </button>
+</main>
+
+<!-- Loading -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Guardando registro…</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ─── ⚠️  REEMPLAZA ESTA URL CON LA DE TU APPS SCRIPT ────────
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqdoG3pABpKElUZocrwDlqokFa6jkzscrzwdCTXqyZavpTQol7wQSWgHVddo05quETNQ/exec";
+  // ─────────────────────────────────────────────────────────────
+
+  const EMPLEADOS = {
+    "AD01": "Acevedo Hernández Patricia",
+    "AD02": "Alba Martínez Enrique",
+    "AD03": "Castañeda Doroteo Antonia",
+    "AD04": "Castañeda Doroteo Citlalli",
+    "AD05": "Flores González Adrián",
+    "AD06": "García López Jesús",
+    "AD07": "Gómez Sánchez Sandra Areli",
+    "AD08": "González Hernández Janeth Estela",
+    "AD09": "Guerra González Ana Gabriela",
+    "AD10": "Homobono Bernal Esthela",
+    "AD11": "Montoya Cruz Rogelio",
+    "AD12": "Navarro Hernández Catalina",
+    "AD13": "Ojeda Suárez María Luisa",
+    "AD14": "Olivares Domínguez Mayra",
+    "AD15": "Reyes Fernández Marisol",
+    "AD16": "Rodríguez Vargas Yolanda",
+    "AD17": "Salinas Estrada Zobieda",
+    "AD18": "Sánchez Pérez María Eugenia",
+    "AD19": "Silva Páramo Anatalia",
+    "AD20": "Téllez González Ana Rosa"
+  };
+
+  let tipoActual = 'entrada';
+  let fotoDataUrl = null;
+  let geoData = null;
+  let clockInterval;
+
+  // ─── Reloj ────────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('headerTime').textContent =
+      now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('headerDate').textContent =
+      now.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' }).toUpperCase();
+    document.getElementById('camTs').textContent =
+      fotoDataUrl ? '' : now.toLocaleTimeString('es-MX') + ' · Alineá tu rostro';
+  }
+  updateClock();
+  clockInterval = setInterval(updateClock, 1000);
+
+  // ─── Tipo ─────────────────────────────────────────────────
+  function setTipo(t) {
+    tipoActual = t;
+    document.getElementById('btnEntrada').className = 'tipo-btn' + (t==='entrada' ? ' active-entrada' : '');
+    document.getElementById('btnSalida').className = 'tipo-btn' + (t==='salida' ? ' active-salida' : '');
+    const btn = document.getElementById('btnRegistrar');
+    btn.textContent = t === 'entrada' ? 'Registrar Entrada' : 'Registrar Salida';
+    btn.className = 'btn-registrar ' + t;
+    checkReady();
+  }
+
+  // ─── Cámara ───────────────────────────────────────────────
+  async function initCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 960 } },
+        audio: false
+      });
+      document.getElementById('video').srcObject = stream;
+    } catch(e) {
+      showToast('Permite el acceso a la cámara', 'err');
+    }
+  }
+
+  function tomarFoto() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const preview = document.getElementById('preview');
+
+    canvas.width = video.videoWidth || 720;
+    canvas.height = video.videoHeight || 960;
+    const ctx = canvas.getContext('2d');
+    // Espejo correcto
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    // Timestamp + nombre quemado
+    const nombre = document.getElementById('nombre');
+    const nombreText = nombre.value ? EMPLEADOS[nombre.value] : '';
+    const ts = new Date().toLocaleString('es-MX');
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0, canvas.height - 48, canvas.width, 48);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(ts, 10, canvas.height - 28);
+    ctx.font = '13px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillText('ISES · ' + (nombreText || ''), 10, canvas.height - 10);
+
+    fotoDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    preview.src = fotoDataUrl;
+    preview.style.display = 'block';
+    video.style.display = 'none';
+
+    document.getElementById('btnFoto').style.display = 'none';
+    document.getElementById('btnRetomar').style.display = '';
+    document.getElementById('camTs').textContent = '✓ Foto capturada';
+    checkReady();
+  }
+
+  function retomar() {
+    fotoDataUrl = null;
+    document.getElementById('preview').style.display = 'none';
+    document.getElementById('video').style.display = 'block';
+    document.getElementById('btnFoto').style.display = '';
+    document.getElementById('btnRetomar').style.display = 'none';
+    checkReady();
+  }
+
+  // ─── Geo ──────────────────────────────────────────────────
+  function getGeo() {
+    const dot = document.getElementById('geoDot');
+    const val = document.getElementById('geoVal');
+    dot.className = 'geo-dot spin';
+    val.textContent = 'Obteniendo ubicación…';
+    geoData = null;
+    checkReady();
+
+    if (!navigator.geolocation) {
+      dot.className = 'geo-dot err';
+      val.textContent = 'Geolocalización no disponible';
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        geoData = {
+          lat: pos.coords.latitude.toFixed(6),
+          lng: pos.coords.longitude.toFixed(6),
+          acc: Math.round(pos.coords.accuracy)
+        };
+        dot.className = 'geo-dot ok';
+        val.textContent = `${geoData.lat}, ${geoData.lng}  ·  ±${geoData.acc}m`;
+        checkReady();
+      },
+      err => {
+        dot.className = 'geo-dot err';
+        val.textContent = err.code === 1
+          ? 'Permiso denegado — actívalo en el navegador'
+          : 'No se pudo obtener ubicación';
+        checkReady();
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
+  // ─── Checklist + botón ────────────────────────────────────
+  function checkReady() {
+    const nombre = document.getElementById('nombre').value;
+    setCheck('chk-nombre', !!nombre);
+    setCheck('chk-foto', !!fotoDataUrl);
+    setCheck('chk-geo', !!geoData);
+    document.getElementById('btnRegistrar').disabled = !(nombre && fotoDataUrl && geoData);
+  }
+
+  function setCheck(id, done) {
+    const el = document.getElementById(id);
+    el.className = 'check-item' + (done ? ' done' : '');
+  }
+
+  // ─── Registrar ────────────────────────────────────────────
+  async function registrar() {
+    const idEmpleado = document.getElementById('nombre').value;
+    const nombre = EMPLEADOS[idEmpleado];
+    const now = new Date();
+
+    const payload = {
+      id: Date.now(),
+      idEmpleado,
+      nombre,
+      tipo: tipoActual,
+      fecha: now.toLocaleDateString('es-MX'),
+      hora: now.toLocaleTimeString('es-MX'),
+      lat: geoData.lat,
+      lng: geoData.lng,
+      precision: geoData.acc,
+      foto: fotoDataUrl
+    };
+
+    document.getElementById('loadingOverlay').classList.add('show');
+    document.getElementById('btnRegistrar').disabled = true;
+
+    try {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+
+      if (json.ok) {
+        showToast(`✓ ${tipoActual.toUpperCase()} registrada — ${nombre.split(' ')[2] || nombre.split(' ')[0]}`, 'ok');
+        // Reset
+        retomar();
+        getGeo();
+        document.getElementById('nombre').value = '';
+        checkReady();
+      } else {
+        throw new Error(json.error || 'Error desconocido');
+      }
+    } catch(e) {
+      showToast('Error al guardar · Intenta de nuevo', 'err');
+      document.getElementById('btnRegistrar').disabled = false;
+    } finally {
+      document.getElementById('loadingOverlay').classList.remove('show');
+    }
+  }
+
+  // ─── Toast ────────────────────────────────────────────────
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + type;
+    setTimeout(() => t.className = '', 3500);
+  }
+
+  // ─── Init ─────────────────────────────────────────────────
+  initCamera();
+  getGeo();
+</script>
+</body>
+</html>
