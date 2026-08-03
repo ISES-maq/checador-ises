@@ -272,6 +272,67 @@
   .check-item.done { color: var(--verde); border-color: rgba(42,92,63,0.3); background: rgba(42,92,63,0.06); }
   .check-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
   .check-item.done .check-dot { background: var(--verde); }
+
+  /* ── Tabs de método ── */
+  .metodo-banner {
+    background: linear-gradient(135deg, rgba(196,83,26,0.1), rgba(184,151,90,0.08));
+    border: 1px solid rgba(196,83,26,0.2);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .metodo-banner-icon { font-size: 18px; flex-shrink: 0; }
+  .metodo-banner-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 10.5px;
+    color: var(--accent);
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+  .metodo-banner-text strong { font-weight: 500; }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 18px;
+    background: var(--cream);
+    padding: 5px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  .tab {
+    padding: 12px 8px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    font-weight: 500;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .tab.active {
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .tab-badge {
+    display: block;
+    font-size: 8px;
+    color: var(--gold);
+    margin-top: 2px;
+    letter-spacing: 0.08em;
+  }
+  .metodo-panel { display: none; }
+  .metodo-panel.active { display: block; }
+
 </style>
 </head>
 <body>
@@ -299,32 +360,70 @@
   <div class="card">
     <div class="card-label">Empleado</div>
 
-    <label>Nombre</label>
-    <select id="nombre" onchange="checkReady()">
-      <option value="">— Selecciona tu nombre —</option>
-      <option value="AD01">Acevedo Hernández Patricia</option>
-      <option value="AD02">Alba Martínez Enrique</option>
-      <option value="AD03">Castañeda Doroteo Antonia</option>
-      <option value="AD04">Castañeda Doroteo Citlalli</option>
-      <option value="AD05">Flores González Adrián</option>
-      <option value="AD06">García López Jesús</option>
-      <option value="AD07">Gómez Sánchez Sandra Areli</option>
-      <option value="AD08">González Hernández Janeth Estefanía</option>
-      <option value="AD09">Guerra González Ana Gabriela</option>
-      <option value="AD10">Homobono Bernal Esthela</option>
-      <option value="AD11">Montoya Cruz Rogelio</option>
-      <option value="AD12">Navarro Hernández Catalina</option>
-      <option value="AD13">Ojeda Suárez María Luisa</option>
-      <option value="AD14">Olivares Domínguez Mayra</option>
-      <option value="AD15">Reyes Fernández Marisol</option>
-      <option value="AD16">Rodríguez Vargas Yolanda</option>
-      <option value="AD17">Salinas Estrada Zobieda</option>
-      <option value="AD18">Sánchez Pérez María Eugenia</option>
-      <option value="AD19">Silva Páramo Anatalia</option>
-      <option value="AD20">Téllez González Ana Rosa</option>
-    </select>
+    <!-- Banner de transición -->
+    <div class="metodo-banner">
+      <span class="metodo-banner-icon">⏳</span>
+      <span class="metodo-banner-text">Periodo de transición. <strong>A partir del 10 de septiembre el registro será únicamente con código PIN.</strong></span>
+    </div>
 
-    <label style="margin-bottom:10px">Tipo de registro</label>
+    <!-- Tabs de método -->
+    <div class="tabs">
+      <button class="tab" id="tab-nombre" onclick="setMetodo('nombre')">
+        Selecciona tu nombre
+        <span class="tab-badge">hasta 9 sep</span>
+      </button>
+      <button class="tab active" id="tab-codigo" onclick="setMetodo('codigo')">
+        Código PIN
+        <span class="tab-badge">recomendado</span>
+      </button>
+    </div>
+
+    <!-- Panel: seleccionar nombre -->
+    <div class="metodo-panel" id="panel-nombre">
+      <label>Nombre</label>
+      <select id="nombreSelect" onchange="onSelectNombre()">
+        <option value="">— Selecciona tu nombre —</option>
+        <option value="AD01">Acevedo Hernández Patricia</option>
+        <option value="AD02">Alba Martínez Enrique</option>
+        <option value="AD03">Castañeda Doroteo Antonia</option>
+        <option value="AD04">Castañeda Doroteo Citlalli</option>
+        <option value="AD06">García López Jesús</option>
+        <option value="AD07">Gómez Sánchez Sandra Areli</option>
+        <option value="AD08">González Hernández Janeth Estefanía</option>
+        <option value="AD09">Guerra González Ana Gabriela</option>
+        <option value="AD10">Homobono Bernal Esthela</option>
+        <option value="AD11">Montoya Cruz Rogelio</option>
+        <option value="AD12">Navarro Hernández Catalina</option>
+        <option value="AD13">Ojeda Suárez María Luisa</option>
+        <option value="AD15">Reyes Fernández Marisol</option>
+        <option value="AD16">Rodríguez Vargas Yolanda</option>
+        <option value="AD17">Salinas Estrada Zobieda</option>
+        <option value="AD18">Sánchez Pérez María Eugenia</option>
+        <option value="AD19">Silva Páramo Anatalia</option>
+        <option value="AD20">Téllez González Ana Rosa</option>
+        <option value="AD21">Ávila Camacho Maricela</option>
+      </select>
+    </div>
+
+    <!-- Panel: código PIN -->
+    <div class="metodo-panel active" id="panel-codigo">
+      <label>PIN personal (4 dígitos)</label>
+      <div style="display:flex;gap:10px;margin-bottom:8px">
+        <input type="password" inputmode="numeric" maxlength="4" id="pinInput"
+          placeholder="● ● ● ●"
+          style="flex:1;padding:13px 16px;border:1px solid var(--border);border-radius:12px;
+                 background:var(--cream);font-family:'DM Mono',monospace;font-size:22px;
+                 letter-spacing:0.2em;color:var(--ink);outline:none;text-align:center;"
+          oninput="validarPin()">
+      </div>
+      <div id="pinFeedback" style="font-family:'DM Mono',monospace;font-size:11px;
+           color:var(--muted);min-height:18px;text-align:center;
+           letter-spacing:0.05em"></div>
+    </div>
+
+    <input type="hidden" id="nombre" value="">
+
+    <label style="margin-bottom:10px;margin-top:16px">Tipo de registro</label>
     <div class="tipo-btns">
       <button class="tipo-btn active-entrada" id="btnEntrada" onclick="setTipo('entrada')">↓ ENTRADA</button>
       <button class="tipo-btn" id="btnSalida" onclick="setTipo('salida')">↑ SALIDA</button>
@@ -378,12 +477,73 @@
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqdoG3pABpKElUZocrwDlqokFa6jkzscrzwdCTXqyZavpTQol7wQSWgHVddo05quETNQ/exec";
   // ─────────────────────────────────────────────────────────────
 
+
+  const PINS = {
+    "7423": "AD01", "3851": "AD02", "6194": "AD03", "2738": "AD04",
+    "4612": "AD06", "8327": "AD07", "5169": "AD08",
+    "1483": "AD09", "6750": "AD10", "3926": "AD11", "8214": "AD12",
+    "4567": "AD13", "2094": "AD15", "5748": "AD16",
+    "9312": "AD17", "3675": "AD18", "8029": "AD19", "1546": "AD20",
+    "6483": "AD21"
+  };
+
+  // ─── Método de identificación (tabs) ──────────────────────
+  // Fecha en que el método "nombre" deja de estar disponible: 10 de septiembre 2026
+  const FECHA_SOLO_CODIGO = new Date(2026, 8, 10); // mes 8 = septiembre
+  let metodoActual = 'codigo';
+
+  function setMetodo(m) {
+    // Bloquear "nombre" a partir del 10 de septiembre
+    if (m === 'nombre' && new Date() >= FECHA_SOLO_CODIGO) {
+      showToast('El registro por nombre ya no está disponible. Usa tu PIN.', 'err');
+      return;
+    }
+    metodoActual = m;
+    document.getElementById('tab-nombre').classList.toggle('active', m === 'nombre');
+    document.getElementById('tab-codigo').classList.toggle('active', m === 'codigo');
+    document.getElementById('panel-nombre').classList.toggle('active', m === 'nombre');
+    document.getElementById('panel-codigo').classList.toggle('active', m === 'codigo');
+    // Limpiar el otro método al cambiar
+    document.getElementById('nombre').value = '';
+    document.getElementById('nombreSelect').value = '';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinFeedback').textContent = '';
+    checkReady();
+  }
+
+  function onSelectNombre() {
+    document.getElementById('nombre').value = document.getElementById('nombreSelect').value;
+    checkReady();
+  }
+
+  function validarPin() {
+    const pin = document.getElementById('pinInput').value;
+    const feedback = document.getElementById('pinFeedback');
+    const hidden = document.getElementById('nombre');
+    if (pin.length < 4) {
+      feedback.textContent = '';
+      feedback.style.color = 'var(--muted)';
+      hidden.value = '';
+      checkReady();
+      return;
+    }
+    const id = PINS[pin];
+    if (id) {
+      hidden.value = id;
+      feedback.textContent = '✓ ' + EMPLEADOS[id];
+      feedback.style.color = 'var(--verde)';
+    } else {
+      hidden.value = '';
+      feedback.textContent = '✗ PIN incorrecto';
+      feedback.style.color = 'var(--accent)';
+    }
+    checkReady();
+  }
   const EMPLEADOS = {
     "AD01": "Acevedo Hernández Patricia",
     "AD02": "Alba Martínez Enrique",
     "AD03": "Castañeda Doroteo Antonia",
     "AD04": "Castañeda Doroteo Citlalli",
-    "AD05": "Flores González Adrián",
     "AD06": "García López Jesús",
     "AD07": "Gómez Sánchez Sandra Areli",
     "AD08": "González Hernández Janeth Estefanía",
@@ -392,13 +552,13 @@
     "AD11": "Montoya Cruz Rogelio",
     "AD12": "Navarro Hernández Catalina",
     "AD13": "Ojeda Suárez María Luisa",
-    "AD14": "Olivares Domínguez Mayra",
     "AD15": "Reyes Fernández Marisol",
     "AD16": "Rodríguez Vargas Yolanda",
     "AD17": "Salinas Estrada Zobieda",
     "AD18": "Sánchez Pérez María Eugenia",
     "AD19": "Silva Páramo Anatalia",
-    "AD20": "Téllez González Ana Rosa"
+    "AD20": "Téllez González Ana Rosa",
+    "AD21": "Ávila Camacho Maricela"
   };
 
   let tipoActual = 'entrada';
@@ -576,6 +736,9 @@
         retomar();
         getGeo();
         document.getElementById('nombre').value = '';
+    document.getElementById('nombreSelect').value = '';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinFeedback').textContent = '';
         checkReady();
       } else {
         throw new Error(json.error || 'Error desconocido');
@@ -597,6 +760,20 @@
   }
 
   // ─── Init ─────────────────────────────────────────────────
+  // Si ya pasó el 10 de septiembre, forzar solo código y ocultar tab de nombre
+  (function aplicarFechaLimite() {
+    if (new Date() >= FECHA_SOLO_CODIGO) {
+      const tabNombre = document.getElementById('tab-nombre');
+      tabNombre.style.opacity = '0.4';
+      tabNombre.style.pointerEvents = 'none';
+      tabNombre.querySelector('.tab-badge').textContent = 'no disponible';
+      setMetodo('codigo');
+      // Actualizar banner
+      const banner = document.querySelector('.metodo-banner-text');
+      if (banner) banner.innerHTML = '<strong>El registro es únicamente con código PIN.</strong>';
+    }
+  })();
+
   initCamera();
   getGeo();
 </script>
